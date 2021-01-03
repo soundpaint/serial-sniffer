@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE config [
+  <!ENTITY cfg "http://www.soundpaint.org/2019/serial-sniffer/config">
+]>
+
+<config
+    xmlns="&cfg;"
+    xmlns:cfg="&cfg;"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="&cfg; config.xsd">
+  <devices>
+    <!-- file path of serial input device -->
+    <serial-in>
+      <path>/dev/ttyS0</path>
+    </serial-in>
+
+    <!-- file path of serial output device -->
+    <serial-out>
+      <path>/dev/ttyS1</path>
+    </serial-out>
+
+    <!-- buffer size -->
+    <buffer-size>16</buffer-size>
+
+    <!-- baud rate -->
+    <baud-rate>9600</baud-rate>
+
+    <!-- number data bits, either 7 or 8 -->
+    <data-bits>8</data-bits>
+
+    <!-- parity bit, one of "none", "even", "odd" -->
+    <parity-bit>none</parity-bit>
+
+    <!-- number stop bits, either 1 or 2 -->
+    <stop-bits>2</stop-bits>
+
+    <!-- automatically start serial data streams on application start? -->
+    <auto-start>false</auto-start>
+  </devices>
+  <logging>
+    <!-- enable / disable logging to file(s) on start -->
+    <enable-file-logging-on-start>true</enable-file-logging-on-start>
+
+    <!-- logging directory path -->
+    <dir-path>.</dir-path>
+
+    <!-- log filename pattern
+
+         supported pattern variables:
+         * $DATE$: will be replaced with current date and time
+
+         * $UID$: will be replace with ID that is unique among all log
+           files in the selected logging directory
+
+         Use "$$" as escape symbol for "$".
+    -->
+    <filename-pattern>serial-sniffer_$DATE$_$UID$.log</filename-pattern>
+
+    <!-- enable / disable appending on start to existing log file -->
+    <append-on-start>true</append-on-start>
+  </logging>
+  <kiosk-mode>
+    <!-- start application in a window or full screen? -->
+    <full-screen>false</full-screen>
+
+    <!-- if application is started in a window, use this window width
+         [px] -->
+    <window-width>800</window-width>
+
+    <!-- if application is started in a window, use this window height
+         [px] -->
+    <window-height>640</window-height>
+
+    <!-- show the control window after touching the screen the
+         specfied amount of seconds.  If set to 0, the control window
+         will never show this way -->
+    <control-show-after-pressing>0</control-show-after-pressing>
+
+    <!-- hide the control window after the specfied amount of
+         seconds.  If set to 0, the control window will never hide -->
+    <control-autohide-after>4</control-autohide-after>
+
+    <!-- enable / disable the X Window System or Wayland cursor -->
+    <enable-cursor>true</enable-cursor>
+
+    <!-- enable / disable display of "quit" button -->
+    <enable-button-quit>true</enable-button-quit>
+  </kiosk-mode>
+  <key-bindings>
+    <!--
+        NOTE: Some special keys like Qt::Space, Qt::Key_Left and
+        Qt::Key_Right may already be caught by the window manager for
+        window actions like browsing through the GUI.  If this is the
+        case, defining bindings for such keys in this section will
+        show no effect.  In doubt, for checking, replace it with a
+        regular key, like any of the 26 letter keys.
+    -->
+    <action>
+      <id>Menu</id>
+      <keys>
+        <key>0x01000055</key> <!-- Qt::Key_Menu -->
+        <key>0x010000dc</key> <!-- Qt::Key_MenuKB -->
+        <key>0x01000030</key> <!-- Qt::Key_F1 -->
+        <key>0x0000003f</key> <!-- Qt::Key_Question -->
+        <key>0x00000023</key> <!-- Qt::Key_NumberSign -->
+      </keys>
+    </action>
+    <action>
+      <id>Quit</id>
+      <keys>
+        <key>0x00000051</key> <!-- Qt::Key_Q -->
+        <key>0x01000000</key> <!-- Qt::Key_Escape -->
+        <key>0x010000b7</key> <!-- Qt::Key_PowerOff -->
+        <key>0x0102000a</key> <!-- Qt::Key_Exit -->
+      </keys>
+    </action>
+    <action>
+      <id>About</id>
+      <keys>
+        <key>0x00000041</key> <!-- Qt::Key_A -->
+        <key>0x0100011b</key> <!-- Qt::Key_Info -->
+      </keys>
+    </action>
+    <action>
+      <id>License</id>
+      <keys>
+        <key>0x00000043</key> <!-- Qt::Key_C -->
+      </keys>
+    </action>
+    <action>
+      <id>Audio_decrement_volume</id>
+      <keys>
+        <key>0x0000002d</key> <!-- Qt::Key_Minus -->
+        <key>0x01000070</key> <!-- Qt::Key_VolumeDown -->
+      </keys>
+    </action>
+    <action>
+      <id>Audio_increment_volume</id>
+      <keys>
+        <key>0x0000002b</key> <!-- Qt::Key_Plus -->
+        <key>0x01000072</key> <!-- Qt::Key_VolumeUp -->
+      </keys>
+    </action>
+    <action>
+      <id>Audio_mute_unmute</id>
+      <keys>
+        <key>0x0000004d</key> <!-- Qt::Key_M -->
+        <key>0x01000071</key> <!-- Qt::Key_VolumeMute -->
+      </keys>
+    </action>
+  </key-bindings>
+  <audio>
+    <!-- enable / disable audio -->
+    <enable-audio>true</enable-audio>
+
+    <!-- enable / disable volume control -->
+    <enable-volume-control>true</enable-volume-control>
+
+    <!-- global volume correction; should be usually 1.0 -->
+    <sample-scale>1</sample-scale>
+
+    <!-- samples per second, usually 44100 -->
+    <sample-rate>44100</sample-rate>
+
+    <!-- for ordinary stereo, choose 2 channels -->
+    <channels>2</channels>
+
+    <!-- if "true", be more verbose on ALSA specific operations -->
+    <alsa-verbose>true</alsa-verbose>
+
+    <!-- if "default" does not work, try "plughw:0,0" instead -->
+    <alsa-playback-device>default</alsa-playback-device>
+
+    <!-- size of audio buffer in [µs] -->
+    <alsa-buffer-time>250000</alsa-buffer-time>
+
+    <!-- period time in [µs] -->
+    <alsa-period-time>50000</alsa-period-time>
+
+    <!-- minimum volume is 0.0, maximum volume is 1.0 -->
+    <initial-volume>0.8</initial-volume>
+  </audio>
+
+</config>
+
+<!--
+    Local Variables:
+      coding:utf-8
+      mode:xml
+    End:
+-->

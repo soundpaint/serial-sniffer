@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE schema [
+  <!ENTITY cfg "http://www.soundpaint.org/2019/serial-sniffer/config">
+]>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="&cfg;"
+           targetNamespace="&cfg;"
+           elementFormDefault="qualified"
+           attributeFormDefault="qualified">
+  <!--
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace"
+  schemaLocation="http://www.w3.org/2001/xml.xsd" />
+  -->
+  <xs:element name="config" type="ConfigType" />
+
+  <xs:complexType name="ConfigType">
+    <xs:all>
+      <xs:element name="devices" type="DevicesType" minOccurs="0" />
+      <xs:element name="logging" type="LoggingType" minOccurs="0" />
+      <xs:element name="kiosk-mode" type="KioskModeType" minOccurs="0" />
+      <xs:element name="key-bindings" type="KeyBindingsType" minOccurs="0" />
+      <xs:element name="audio" type="AudioType" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="DevicesType">
+    <xs:all>
+      <xs:element name="serial-in" type="DevPathType" minOccurs="0" />
+      <xs:element name="serial-out" type="DevPathType" minOccurs="0" />
+      <xs:element name="buffer-size" type="xs:nonNegativeInteger"
+                  minOccurs="0" />
+      <xs:element name="baud-rate" type="xs:nonNegativeInteger"
+                  minOccurs="0" />
+      <xs:element name="data-bits" type="xs:nonNegativeInteger"
+                  minOccurs="0" />
+      <xs:element name="parity-bit" type="ParityBitType" minOccurs="0" />
+      <xs:element name="stop-bits" type="xs:nonNegativeInteger"
+                  minOccurs="0" />
+      <xs:element name="auto-start" type="xs:boolean" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="LoggingType">
+    <xs:all>
+      <xs:element name="enable-file-logging-on-start"
+                  type="xs:boolean" minOccurs="0" />
+      <xs:element name="dir-path" type="xs:string" minOccurs="0" />
+      <xs:element name="filename-pattern" type="xs:string" minOccurs="0" />
+      <xs:element name="append-on-start" type="xs:boolean" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="KioskModeType">
+    <xs:all>
+      <xs:element name="full-screen" type="xs:boolean" minOccurs="0" />
+      <xs:element name="window-width"
+                  type="xs:positiveInteger"
+                  minOccurs="0" />
+      <xs:element name="window-height"
+                  type="xs:positiveInteger"
+                  minOccurs="0" />
+      <xs:element name="control-show-after-pressing"
+                  type="xs:nonNegativeInteger"
+                  minOccurs="0" />
+      <xs:element name="control-autohide-after"
+                  type="xs:nonNegativeInteger"
+                  minOccurs="0" />
+      <xs:element name="enable-cursor" type="xs:boolean" minOccurs="0" />
+      <xs:element name="enable-button-quit" type="xs:boolean" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="KeyBindingsType">
+    <xs:sequence>
+      <xs:element name="action" type="ActionType"
+                  minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ActionType">
+    <xs:all>
+      <xs:element name="id" type="ActionIdType" minOccurs="1" />
+      <xs:element name="keys" type="KeysType" minOccurs="1" />
+    </xs:all>
+  </xs:complexType>
+
+  <xs:simpleType name="ActionIdType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Menu" />
+      <xs:enumeration value="Quit" />
+      <xs:enumeration value="About" />
+      <xs:enumeration value="License" />
+      <xs:enumeration value="Audio_decrement_volume" />
+      <xs:enumeration value="Audio_increment_volume" />
+      <xs:enumeration value="Audio_mute_unmute" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="KeysType">
+    <xs:sequence>
+      <xs:element name="key" type="HexIntType"
+                  minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AudioType">
+    <xs:all>
+      <xs:element name="enable-audio" type="xs:boolean" minOccurs="0" />
+      <xs:element name="enable-volume-control" type="xs:boolean"
+                  minOccurs="0" />
+      <xs:element name="sample-scale" type="xs:float" minOccurs="0" />
+      <xs:element name="sample-rate" type="xs:positiveInteger" minOccurs="0" />
+      <xs:element name="channels" type="xs:positiveInteger" minOccurs="0" />
+      <xs:element name="alsa-verbose" type="xs:boolean" minOccurs="0" />
+      <xs:element name="alsa-playback-device" type="xs:string" minOccurs="0" />
+      <xs:element name="alsa-buffer-time" type="xs:positiveInteger"
+                  minOccurs="0" />
+      <xs:element name="alsa-period-time" type="xs:positiveInteger"
+                  minOccurs="0" />
+      <xs:element name="initial-volume" type="UnitFractionType"
+                  minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="DevPathType">
+    <xs:all>
+      <xs:element name="path" type="xs:string" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+
+  <xs:simpleType name="ParityBitType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+      <xs:enumeration value="even" />
+      <xs:enumeration value="odd" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="HexIntType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="0[Xx][A-Fa-f0-9]{1,8}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NonNegativeDoubleType">
+    <xs:restriction base="xs:double">
+      <xs:minInclusive value="0.0"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="UnitFractionType">
+    <xs:restriction base="NonNegativeDoubleType">
+      <xs:maxInclusive value="1.0"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+
+<!--
+    Local Variables:
+      coding:utf-8
+      mode:xml
+    End:
+-->

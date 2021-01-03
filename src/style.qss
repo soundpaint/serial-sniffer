@@ -1,0 +1,26 @@
+Titled_button {
+    font-size: 8pt;
+    text-transform: uppercase;
+}
+
+Titled_dial {
+    qproperty-fgColor: #00f;
+    qproperty-bgColor: #fff;
+    qproperty-textColor: #000;
+    qproperty-sliderWidth: 10;
+    qproperty-labelFontPointSize: 8;
+}
+
+QGroupBox {
+    font-variant: small-caps;
+    border: 1px solid gray;
+    border-radius: 3px;
+    margin-top: 0.5em;
+}
+
+QGroupBox::title {
+    color: #444;
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 3px 0 3px;
+}
