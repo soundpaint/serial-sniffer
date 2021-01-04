@@ -48,7 +48,7 @@
 #include <config-panel.hh>
 #include <control-panel.hh>
 #include <log-panel.hh>
-#include <streamer-thread.hh>
+#include <patch.hh>
 
 class Main_window : public QMainWindow
 {
@@ -57,7 +57,7 @@ public:
   explicit Main_window(const uint16_t width,
                        const uint16_t height,
                        App_control *app_control,
-                       Streamer_thread *streamer_thread,
+                       Patch *patch,
                        Qt_actions *actions,
                        QWidget *parent = 0);
   virtual ~Main_window();
@@ -68,7 +68,7 @@ public:
   const bool get_config_dirty() const;
 private:
   App_control *_app_control;
-  Streamer_thread *_streamer_thread;
+  Patch *_patch;
   QIcon *_window_icon;
   Menu_bar *_menu_bar;
   QTabWidget *_tab;

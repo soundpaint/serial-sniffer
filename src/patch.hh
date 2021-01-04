@@ -30,8 +30,8 @@
  * Author's web site: www.juergen-reuter.de
  */
 
-#ifndef STREAMER_THREAD_HH
-#define STREAMER_THREAD_HH
+#ifndef PATCH_HH
+#define PATCH_HH
 
 #include <vector>
 #include <map>
@@ -39,11 +39,11 @@
 #include <iserial-event-listener.hh>
 #include <uart.hh>
 
-class Streamer_thread
+class Patch
 {
 public:
-  Streamer_thread(App_control *app_control);
-  virtual ~Streamer_thread();
+  Patch(App_control *app_control);
+  virtual ~Patch();
   void add_event_listener(ISerial_event_listener *listener);
   void remove_event_listener(ISerial_event_listener *listener);
   const std::vector<const IUart_info *> get_all_uarts() const;
@@ -63,7 +63,7 @@ private:
   Line *lookup_line_by_id(const uint32_t id) const;
 };
 
-#endif /* STREAMER_THREAD_HH */
+#endif /* PATCH_HH */
 
 /*
  * Local variables:

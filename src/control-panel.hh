@@ -38,20 +38,17 @@
 #include <control-file-logger-panel.hh>
 #include <control-console-logger-panel.hh>
 #include <control-serial-ports-panel.hh>
-#include <streamer-thread.hh>
 
 class Control_panel : public QWidget
 {
   Q_OBJECT
 public:
   explicit Control_panel(App_control *app_control,
-                         Streamer_thread *streamer_thread,
                          QWidget *parent);
   virtual ~Control_panel();
   ILogger_status_listener *get_logger_control_panel();
 private:
   App_control *_app_control;
-  Streamer_thread *_streamer_thread;
   QVBoxLayout *_layout;
   Control_file_logger_panel *_control_file_logger_panel;
   Control_console_logger_panel *_control_console_logger_panel;

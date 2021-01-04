@@ -36,7 +36,7 @@
 Main_window::Main_window(const uint16_t width,
                          const uint16_t height,
                          App_control *app_control,
-                         Streamer_thread *streamer_thread,
+                         Patch *patch,
                          Qt_actions *actions,
                          QWidget *parent)
   : QMainWindow(parent)
@@ -48,10 +48,10 @@ Main_window::Main_window(const uint16_t width,
   }
   _app_control = app_control;
 
-  if (!streamer_thread) {
-    Log::fatal("Main_window::Main_window(): streamer_thread is NULL");
+  if (!patch) {
+    Log::fatal("Main_window::Main_window(): patch is NULL");
   }
-  _streamer_thread = streamer_thread;
+  _patch = patch;
 
   if (!actions) {
     Log::fatal("Main_window::Main_window(): actions is NULL");
@@ -90,7 +90,7 @@ Main_window::Main_window(const uint16_t width,
   }
   _tab->addTab(_config_panel, tr(""));
 
-  _control_panel = new Control_panel(_app_control, _streamer_thread, _tab);
+  _control_panel = new Control_panel(_app_control, _tab);
   if (!_control_panel) {
     Log::fatal("Main_window::Main_window(): not enough memory");
   }
@@ -101,8 +101,7 @@ Main_window::Main_window(const uint16_t width,
     Log::fatal("Main_window::Main_window(): not enough memory");
   }
   _log_panel->add_status_listener(_control_panel->get_logger_control_panel());
-  _streamer_thread->add_event_listener(_log_panel);
-  //_streamer_thread->add_status_listener(_log_panel);
+  _patch->add_event_listener(_log_panel);
   _tab->addTab(_log_panel, tr("Con&sole Log"));
 }
 
@@ -115,8 +114,7 @@ Main_window::~Main_window()
   _config_panel->deleteLater();
   _config_panel = 0;
 
-  _streamer_thread->remove_event_listener(_log_panel);
-  //_streamer_thread->remove_status_listener(_log_panel);
+  _patch->remove_event_listener(_log_panel);
   _log_panel->remove_status_listener(_control_panel->
                                      get_logger_control_panel());
   _log_panel->deleteLater();
@@ -133,7 +131,7 @@ Main_window::~Main_window()
 
   // elsewhere managed objects
   _app_control = 0;
-  _streamer_thread = 0;
+  _patch = 0;
 }
 
 IConsole_logger *

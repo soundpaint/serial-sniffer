@@ -60,8 +60,8 @@ Serial_sniffer::Serial_sniffer(int &argc, char **argv)
     Log::fatal("Serial_sniffer::Serial_sniffer(): not enough memory");
   }
 
-  _streamer_thread = new Streamer_thread(this);
-  if (!_streamer_thread) {
+  _patch = new Patch(this);
+  if (!_patch) {
     Log::fatal("Serial_sniffer::Serial_sniffer(): not enough memory");
   }
 
@@ -69,7 +69,7 @@ Serial_sniffer::Serial_sniffer(int &argc, char **argv)
   if (!_file_logger) {
     Log::fatal("Serial_sniffer::Serial_sniffer(): not enough memory");
   }
-  _streamer_thread->add_event_listener(_file_logger);
+  _patch->add_event_listener(_file_logger);
 
   const QRect screen_geometry = QApplication::desktop()->screenGeometry();
   const uint16_t screen_width = screen_geometry.width();
@@ -98,8 +98,7 @@ Serial_sniffer::Serial_sniffer(int &argc, char **argv)
     // TODO
   }
 
-  _main_window = new Main_window(width, height, this, _streamer_thread,
-                                 _actions);
+  _main_window = new Main_window(width, height, this, _patch, _actions);
   if (!_main_window) {
     Log::fatal("Serial_sniffer::Serial_sniffer(): not enough memory");
   }
@@ -130,9 +129,9 @@ Serial_sniffer::Serial_sniffer(int &argc, char **argv)
 Serial_sniffer::~Serial_sniffer()
 {
   // locally managed non-Qt objects
-  _streamer_thread->remove_event_listener(_file_logger);
-  delete _streamer_thread;
-  _streamer_thread = 0;
+  _patch->remove_event_listener(_file_logger);
+  delete _patch;
+  _patch = 0;
   delete _file_logger;
   _file_logger = 0;
   delete _config;
@@ -155,7 +154,8 @@ Serial_sniffer::read_style_sheet(const char *file_path)
 {
   std::ifstream in_file(file_path);
   if (!in_file.good()) {
-    Log::warn("Serial_sniffer::read_style_sheet(): no style sheet \"style.qss\"");
+    Log::warn("Serial_sniffer::read_style_sheet(): "
+              "no style sheet \"style.qss\"");
     return NULL;
   }
   in_file.seekg(0, std::ios::end);
@@ -263,19 +263,19 @@ Serial_sniffer::save_config(std::string file_path) const
 const std::vector<const IUart_info *>
 Serial_sniffer::get_all_uarts() const
 {
-  return _streamer_thread->get_all_uarts();
+  return _patch->get_all_uarts();
 }
 
 const IUart_info *
 Serial_sniffer::get_uart_info(const uint32_t id) const
 {
-  return _streamer_thread->get_uart_info(id);
+  return _patch->get_uart_info(id);
 }
 
 void
 Serial_sniffer::start_line(const uint32_t id)
 {
-  _streamer_thread->start_line(id);
+  _patch->start_line(id);
 }
 
 void
@@ -283,16 +283,14 @@ Serial_sniffer::stop_line(const uint32_t id)
 {
   {
     std::stringstream msg;
-    msg << "[APP1] stop_line "
-        << id;
-    Log::debug(msg.str());
+    msg << "[APP1] stop_line " << id;
+    Log::trace(msg.str());
   }
-  _streamer_thread->stop_line(id);
+  _patch->stop_line(id);
   {
     std::stringstream msg;
-    msg << "[APP2] stop_line "
-        << id;
-    Log::debug(msg.str());
+    msg << "[APP2] stop_line " << id;
+    Log::trace(msg.str());
   }
 }
 

@@ -51,9 +51,9 @@ MY_OBJ_FILES = \
   $(patsubst %.o,$(BUILD_OBJ)/%.o, \
   abstract-config-reader.o config.o config-reader.o config-writer.o \
   file-logger.o key-bindings.o line-in.o line-out.o log.o line.o \
-  serial-event.o serial-event-default-filter.o serial-event-filter.o \
-  serial-event-pass-all-filter.o streamer-thread.o time-utils.o uart.o \
-  xml-node-list.o xml-parser-error-handler.o \
+  patch.o serial-event.o serial-event-default-filter.o \
+  serial-event-filter.o serial-event-pass-all-filter.o time-utils.o \
+  uart.o xml-node-list.o xml-parser-error-handler.o \
   $(MY_QT5_OBJ_FILES))
 
 LIB_OBJ_FILES=

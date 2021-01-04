@@ -33,20 +33,13 @@
 #include <control-panel.hh>
 #include <log.hh>
 
-Control_panel::Control_panel(App_control *app_control,
-                             Streamer_thread *streamer_thread,
-                             QWidget *parent)
+Control_panel::Control_panel(App_control *app_control, QWidget *parent)
   : QWidget(parent)
 {
   if (!app_control) {
     Log::fatal("Control_panel::Control_panel(): app_control is NULL");
   }
   _app_control = app_control;
-
-  if (!streamer_thread) {
-    Log::fatal("Main_window::Main_window(): streamer_thread is NULL");
-  }
-  _streamer_thread = streamer_thread;
 
   _layout = new QVBoxLayout();
   if (!_layout) {
@@ -92,7 +85,6 @@ Control_panel::~Control_panel()
 
   // elsewhere managed objects
   _app_control = 0;
-  _streamer_thread = 0;
 }
 
 ILogger_status_listener *

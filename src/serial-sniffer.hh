@@ -38,7 +38,7 @@
 #include <about-dialog.hh>
 #include <license-dialog.hh>
 #include <main-window.hh>
-#include <streamer-thread.hh>
+#include <patch.hh>
 #include <file-logger.hh>
 #include <iconsole-logger.hh>
 
@@ -71,7 +71,7 @@ private:
   static const char *STYLE_SHEET_FILE_PATH;
   const char *_style_sheet;
   Config *_config;
-  Streamer_thread *_streamer_thread;
+  Patch *_patch;
   File_logger *_file_logger;
   IConsole_logger *_console_logger;
   Qt_actions *_actions;
@@ -79,7 +79,6 @@ private:
   License_dialog *_license_dialog;
   About_dialog *_about_dialog;
   static const char *read_style_sheet(const char *file_path);
-  void streamer_status_changed(const bool started);
   void stop_threads();
 };
 

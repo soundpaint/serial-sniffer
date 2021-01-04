@@ -30,12 +30,12 @@
  * Author's web site: www.juergen-reuter.de
  */
 
-#include <streamer-thread.hh>
+#include <patch.hh>
 #include <unistd.h>
 #include <sstream>
 #include <log.hh>
 
-Streamer_thread::Streamer_thread(App_control *app_control)
+Patch::Patch(App_control *app_control)
 {
   if (!app_control) {
     Log::fatal("Main_window::Main_window(): app_control is NULL");
@@ -44,20 +44,17 @@ Streamer_thread::Streamer_thread(App_control *app_control)
 
   _uarts = new std::map<const uint32_t, Uart *>();
   if (!_uarts) {
-    Log::fatal("Streamer_thread::Streamer_thread(): "
-               "not enough memory");
+    Log::fatal("Patch::Patch(): not enough memory");
   }
 
   _lines = new std::map<const uint32_t, Line *>();
   if (!_lines) {
-    Log::fatal("Streamer_thread::Streamer_thread(): "
-               "not enough memory");
+    Log::fatal("Patch::Patch(): not enough memory");
   }
 
   _event_listeners = new std::vector<ISerial_event_listener *>();
   if (!_event_listeners) {
-    Log::fatal("Streamer_thread::Streamer_thread(): "
-               "not enough memory");
+    Log::fatal("Patch::Patch(): not enough memory");
   }
 
   const IConfig *config = _app_control->get_config();
@@ -78,7 +75,7 @@ Streamer_thread::Streamer_thread(App_control *app_control)
   _com1->propagate_input_to(_com2);
 }
 
-Streamer_thread::~Streamer_thread()
+Patch::~Patch()
 {
   // locally managed non-Qt objects
   _com1->stop_receiving(true);
@@ -103,23 +100,23 @@ Streamer_thread::~Streamer_thread()
 }
 
 void
-Streamer_thread::add_uart(Uart *uart)
+Patch::add_uart(Uart *uart)
 {
   if (!uart) {
-    Log::fatal("Streamer_thread::add_uart(): uart is NULL");
+    Log::fatal("Patch::add_uart(): uart is NULL");
   }
   if (!_uarts) {
-    Log::fatal("Streamer_thread::add_uart(): _uarts is NULL");
+    Log::fatal("Patch::add_uart(): _uarts is NULL");
   }
   if (!_lines) {
-    Log::fatal("Streamer_thread::add_uart(): _lines is NULL");
+    Log::fatal("Patch::add_uart(): _lines is NULL");
   }
 
   const uint32_t id = uart->get_id();
   std::map<const uint32_t, Uart *>::iterator iter = _uarts->find(id);
   if (iter != _uarts->end()) {
     std::stringstream msg;
-    msg << "Streamer_thread::add_uart(): id "
+    msg << "Patch::add_uart(): id "
         << id << " already assigned to uart "
         << iter->second->get_name();
     Log::fatal(msg.str());
@@ -140,13 +137,13 @@ Streamer_thread::add_uart(Uart *uart)
 }
 
 void
-Streamer_thread::remove_uart(Uart *uart)
+Patch::remove_uart(Uart *uart)
 {
   if (!uart) {
-    Log::fatal("Streamer_thread::remove_uart(): uart is NULL");
+    Log::fatal("Patch::remove_uart(): uart is NULL");
   }
   if (!_uarts) {
-    Log::fatal("Streamer_thread::remove_uart(): _uarts is NULL");
+    Log::fatal("Patch::remove_uart(): _uarts is NULL");
   }
 
   const int size = _event_listeners->size();
@@ -167,7 +164,7 @@ Streamer_thread::remove_uart(Uart *uart)
 }
 
 const std::vector<const IUart_info *>
-Streamer_thread::get_all_uarts() const
+Patch::get_all_uarts() const
 {
   std::vector<const IUart_info *> uarts = std::vector<const IUart_info *>();
   std::map<const uint32_t, Uart *>::iterator it = _uarts->begin();
@@ -179,7 +176,7 @@ Streamer_thread::get_all_uarts() const
 }
 
 Uart *
-Streamer_thread::lookup_uart_by_id(const uint32_t id) const
+Patch::lookup_uart_by_id(const uint32_t id) const
 {
   std::map<uint32_t, Uart *>::iterator it = _uarts->find(id);
   if (it == _uarts->end()) {
@@ -189,7 +186,7 @@ Streamer_thread::lookup_uart_by_id(const uint32_t id) const
 }
 
 Line *
-Streamer_thread::lookup_line_by_id(const uint32_t id) const
+Patch::lookup_line_by_id(const uint32_t id) const
 {
   std::map<uint32_t, Line *>::iterator it = _lines->find(id);
   if (it == _lines->end()) {
@@ -199,60 +196,53 @@ Streamer_thread::lookup_line_by_id(const uint32_t id) const
 }
 
 const IUart_info *
-Streamer_thread::get_uart_info(const uint32_t id) const
+Patch::get_uart_info(const uint32_t id) const
 {
   const Uart *uart = lookup_uart_by_id(id);
   if (!uart) {
-    Log::fatal("Streamer_thread::get_uart_info(): "
-               "no uart found with specified id");
+    Log::fatal("Patch::get_uart_info(): no uart found with specified id");
   }
   return uart;
 }
 
 void
-Streamer_thread::start_line(const uint32_t id)
+Patch::start_line(const uint32_t id)
 {
   Line *line = lookup_line_by_id(id);
   if (!line) {
-    Log::fatal("Streamer_thread::start_line(): "
-               "no line found with specified id");
+    Log::fatal("Patch::start_line(): no line found with specified id");
   }
   line->start();
 }
 
 void
-Streamer_thread::stop_line(const uint32_t id)
+Patch::stop_line(const uint32_t id)
 {
   Line *line = lookup_line_by_id(id);
   if (!line) {
-    Log::fatal("Streamer_thread::stop_line(): "
-               "no line found with specified id");
+    Log::fatal("Patch::stop_line(): no line found with specified id");
   }
   {
     std::stringstream msg;
-    msg << "[STRM1] stop_line "
-        << id;
-    Log::debug(msg.str());
+    msg << "[STRM1] stop_line " << id;
+    Log::trace(msg.str());
   }
   line->stop();
   {
     std::stringstream msg;
-    msg << "[STRM2] stop_line "
-        << id;
-    Log::debug(msg.str());
+    msg << "[STRM2] stop_line " << id;
+    Log::trace(msg.str());
   }
 }
 
 void
-Streamer_thread::add_event_listener(ISerial_event_listener *listener)
+Patch::add_event_listener(ISerial_event_listener *listener)
 {
   if (!listener) {
-    Log::fatal("Streamer_thread::add_event_listener(): "
-               "listener is NULL");
+    Log::fatal("Patch::add_event_listener(): listener is NULL");
   }
   if (!_event_listeners) {
-    Log::fatal("Streamer_thread::add_event_listener(): "
-               "_event_listeners is NULL");
+    Log::fatal("Patch::add_event_listener(): _event_listeners is NULL");
   }
   _event_listeners->push_back(listener);
 
@@ -261,7 +251,7 @@ Streamer_thread::add_event_listener(ISerial_event_listener *listener)
     Uart *uart = entry->second;
     if (!uart) {
       std::stringstream msg;
-      msg << "Streamer_thread::add_event-listener(): uart "
+      msg << "Patch::add_event-listener(): uart "
           << entry->first << " is NULL";
       Log::fatal(msg.str());
     }
@@ -270,15 +260,13 @@ Streamer_thread::add_event_listener(ISerial_event_listener *listener)
 }
 
 void
-Streamer_thread::remove_event_listener(ISerial_event_listener *listener)
+Patch::remove_event_listener(ISerial_event_listener *listener)
 {
   if (!listener) {
-    Log::fatal("Streamer_thread::remove_event_listener(): "
-               "listener is NULL");
+    Log::fatal("Patch::remove_event_listener(): listener is NULL");
   }
   if (!_event_listeners) {
-    Log::fatal("Streamer_thread::remove_event_listener(): "
-               "_event_listeners is NULL");
+    Log::fatal("Patch::remove_event_listener(): _event_listeners is NULL");
   }
   auto tail_start =
     std::remove(_event_listeners->begin(),
@@ -291,7 +279,7 @@ Streamer_thread::remove_event_listener(ISerial_event_listener *listener)
     Uart *uart = entry->second;
     if (!uart) {
       std::stringstream msg;
-      msg << "Streamer_thread::add_event-listener(): uart "
+      msg << "Patch::add_event-listener(): uart "
           << entry->first << " is NULL";
       Log::fatal(msg.str());
     }
