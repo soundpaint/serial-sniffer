@@ -31,17 +31,15 @@
  */
 
 #include <log.hh>
-#include <chrono>
-#include <cstdlib>
 #include <iomanip>
 
 Log::Level
-Log::_level = Log::Level::debug;
+Log::_level = Log::Level::trace;
 
-pthread_mutex_t *Log::get_lock()
+std::lock_guard<std::mutex> Log::get_lock()
 {
   static Log instance;
-  return &(instance._serialize_lock);
+  return std::lock_guard<std::mutex>(instance._serialize_lock);
 }
 
 const std::string
@@ -80,9 +78,8 @@ void
 Log::any(const std::string msg, const Level level, const std::string level_name)
 {
   if (_level < level) return;
-  pthread_mutex_lock(get_lock());
+  const std::lock_guard<std::mutex> lock = get_lock();
   std::cerr << "[" << level_name << "] " << msg << "\r\n" << std::flush;
-  pthread_mutex_unlock(get_lock());
 }
 
 void
@@ -131,7 +128,6 @@ Log::set_level(const Level level)
 
 Log::Log()
 {
-  pthread_mutex_init(&_serialize_lock, 0);
   // when called, have lock already acquired => immediately write to cout
   std::cout << "[debug] starting Log\r\n" << std::flush;
 }
@@ -139,7 +135,6 @@ Log::Log()
 Log::~Log()
 {
   debug("shutting down Log");
-  pthread_mutex_destroy(&_serialize_lock);
 }
 
 /*

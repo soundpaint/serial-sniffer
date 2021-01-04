@@ -33,11 +33,8 @@
 #ifndef LOG_HH
 #define LOG_HH
 
-#include <pthread.h>
-#include <string>
-#include <ostream>
 #include <iostream>
-#include <sstream>
+#include <mutex>
 
 class Log
 {
@@ -65,9 +62,9 @@ private:
                                         const std::string msg);
   static void any(const std::string msg, const Level level,
                   const std::string level_name);
-  static pthread_mutex_t *get_lock();
+  static std::lock_guard<std::mutex> get_lock();
   static const std::string get_timestamp();
-  pthread_mutex_t _serialize_lock;
+  std::mutex _serialize_lock;
   Log();
   virtual ~Log();
 };
