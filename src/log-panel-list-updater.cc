@@ -51,7 +51,6 @@ Log_panel_list_updater::Log_panel_list_updater(QObject *parent,
   }
 
   _event_filter = &Serial_event_pass_all_filter::DEFAULT_INSTANCE;
-  pthread_mutex_init(&_access_events, 0);
   QObject::connect(this, SIGNAL(timeout()),
                    this, SLOT(update()));
   start(100);
@@ -62,7 +61,6 @@ Log_panel_list_updater::~Log_panel_list_updater()
   // locally managed non-Qt objects
   delete _events;
   _events = 0;
-  pthread_mutex_destroy(&_access_events);
 
   // elsewhere managed objects
   _log_panel_list = 0;
@@ -83,12 +81,10 @@ Log_panel_list_updater::notify_event(const Serial_event *event)
   if (!_event_filter->accept(event))
     return;
   Log::trace("QQQQQQ5 notify list updater");
-  pthread_mutex_lock(&_access_events);
+  std::lock_guard<std::mutex> lock(_access_events);
   Log::trace("QQQQQQ6 notify list updater");
   _events->push_back(*event);
   Log::trace("QQQQQQ7 notify list updater");
-  pthread_mutex_unlock(&_access_events);
-  Log::trace("QQQQQQ8 notify list updater");
 }
 
 inline int
@@ -101,20 +97,18 @@ void
 Log_panel_list_updater::update()
 {
   std::vector<Serial_event> copy_of_events;
-
-  pthread_mutex_lock(&_access_events);
-
-  const int size = _events->size();
-  if (size > 0) {
-    const int start_index = MAX(0, size - _log_panel_list->BUFFERED_LINES);
-    for (int index = start_index; index < size; index++) {
-      copy_of_events.push_back((*_events)[index]);
+  {
+    std::lock_guard<std::mutex> lock(_access_events);
+    const int size = _events->size();
+    if (size > 0) {
+      const int start_index = MAX(0, size - _log_panel_list->BUFFERED_LINES);
+      for (int index = start_index; index < size; index++) {
+        copy_of_events.push_back((*_events)[index]);
+      }
+      _events->clear();
     }
-    _events->clear();
   }
-
-  pthread_mutex_unlock(&_access_events);
-
+  const int size = copy_of_events.size();
   if (size > 0) {
     _log_panel_list->update_events(&copy_of_events);
   }

@@ -34,7 +34,7 @@
 #define LOG_PANEL_LIST_UPDATER_HH
 
 #include <vector>
-#include <pthread.h>
+#include <mutex>
 #include <QtCore/QTimer>
 #include <iserial-event-filter.hh>
 #include <log-panel-list.hh>
@@ -54,7 +54,7 @@ private slots:
   void update();
 private:
   Log_panel_list *_log_panel_list;
-  pthread_mutex_t _access_events;
+  std::mutex _access_events;
   const ISerial_event_filter *_event_filter;
   std::vector<Serial_event> *_events;
   inline static int MAX(const int a, const int b);
