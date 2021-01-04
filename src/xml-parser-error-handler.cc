@@ -31,6 +31,7 @@
  */
 
 #include <xml-parser-error-handler.hh>
+#include <sstream>
 #include <log.hh>
 
 Xml_parser_error_handler::Xml_parser_error_handler()

@@ -31,6 +31,7 @@
  */
 
 #include <unistd.h>
+#include <sstream>
 #include <algorithm>
 #include <streamer-thread.hh>
 #include <log.hh>

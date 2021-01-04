@@ -31,6 +31,7 @@
  */
 
 #include <line.hh>
+#include <sstream>
 #include <algorithm>
 #include <log.hh>
 

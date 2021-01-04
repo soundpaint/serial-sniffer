@@ -31,8 +31,9 @@
  */
 
 #include <serial-sniffer.hh>
-#include <cmath>
+#include <sstream>
 #include <fstream>
+#include <cmath>
 #include <QtWidgets/QDesktopWidget>
 #include <QtWidgets/QMessageBox>
 #include <config.hh>

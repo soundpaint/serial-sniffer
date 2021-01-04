@@ -31,6 +31,7 @@
  */
 
 #include <control-serial-ports-panel.hh>
+#include <sstream>
 #include <log.hh>
 #include <uart.hh>
 

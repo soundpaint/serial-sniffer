@@ -31,6 +31,7 @@
  */
 
 #include <config-reader.hh>
+#include <sstream>
 #include <cerrno>
 #include <unistd.h>
 #include <log.hh>

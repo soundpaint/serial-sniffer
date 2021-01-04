@@ -31,6 +31,7 @@
  */
 
 #include <key-bindings.hh>
+#include <sstream>
 #include <log.hh>
 
 Key_bindings::Key_bindings()

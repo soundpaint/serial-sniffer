@@ -31,6 +31,7 @@
  */
 
 #include <line-out.hh>
+#include <sstream>
 #include <unistd.h>
 #include <log.hh>
 

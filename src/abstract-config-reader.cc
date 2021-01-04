@@ -31,6 +31,7 @@
  */
 
 #include <abstract-config-reader.hh>
+#include <sstream>
 #include <cerrno>
 #include <config.hh>
 #include <log.hh>

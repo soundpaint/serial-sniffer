@@ -31,6 +31,7 @@
  */
 
 #include <config.hh>
+#include <sstream>
 #include <log.hh>
 #include <config-reader.hh>
 #include <config-writer.hh>

@@ -33,9 +33,7 @@
 #ifndef UART_HH
 #define UART_HH
 
-#include <pthread.h>
 #include <iuart-info.hh>
-#include <termios.h>
 #include <app-control.hh>
 #include <line-in.hh>
 #include <line-out.hh>
