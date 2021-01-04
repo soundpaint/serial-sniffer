@@ -54,14 +54,6 @@ Control_panel::Control_panel(App_control *app_control,
   }
   setLayout(_layout);
 
-  _control_stream_panel =
-    new Control_stream_panel(_app_control, this);
-  if (!_control_stream_panel) {
-    Log::fatal("Control_panel::Control_panel(): not enough memory");
-  }
-  _streamer_thread->add_status_listener(_control_stream_panel);
-  _layout->addWidget(_control_stream_panel);
-
   _control_console_logger_panel =
     new Control_console_logger_panel(_app_control, this);
   if (!_control_console_logger_panel) {
@@ -95,8 +87,6 @@ Control_panel::~Control_panel()
   _control_console_logger_panel = 0;
   _control_file_logger_panel->deleteLater();
   _control_file_logger_panel = 0;
-
-  _streamer_thread->remove_status_listener(_control_stream_panel);
   _control_serial_ports_panel->deleteLater();
   _control_serial_ports_panel = 0;
 

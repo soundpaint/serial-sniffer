@@ -39,7 +39,7 @@ MY_QT5_OBJ_FILES = \
   about-dialog.o app-control.o config-panel.o \
   control-console-logger-panel.o control-file-logger-panel.o \
   control-panel.o control-serial-ports-panel.o \
-  control-stream-panel.o file-menu.o help-menu.o license-dialog.o \
+  file-menu.o help-menu.o license-dialog.o \
   log-config-panel.o log-panel.o log-panel-list.o log-panel-list-updater.o \
   main-window.o menu-bar.o qt-actions.o serial-config-panel.o \
   serial-config-data-bits-panel.o serial-config-parity-bit-panel.o \

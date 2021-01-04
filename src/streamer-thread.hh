@@ -33,12 +33,10 @@
 #ifndef STREAMER_THREAD_HH
 #define STREAMER_THREAD_HH
 
-#include <pthread.h>
 #include <vector>
 #include <map>
 #include <app-control.hh>
 #include <iserial-event-listener.hh>
-#include <istreamer-status-listener.hh>
 #include <uart.hh>
 
 class Streamer_thread
@@ -48,35 +46,21 @@ public:
   virtual ~Streamer_thread();
   void add_event_listener(ISerial_event_listener *listener);
   void remove_event_listener(ISerial_event_listener *listener);
-  void add_status_listener(IStreamer_status_listener *listener);
-  void remove_status_listener(IStreamer_status_listener *listener);
   const std::vector<const IUart_info *> get_all_uarts() const;
   const IUart_info *get_uart_info(const uint32_t id) const;
   void start_line(const uint32_t id);
   void stop_line(const uint32_t id);
-  void start();
-  void stop(const bool ignore_status = false);
-  const bool is_running() const;
 private:
   App_control *_app_control;
   std::map<const uint32_t, Uart *> *_uarts;
   std::map<const uint32_t, Line *> *_lines;
   std::vector<ISerial_event_listener *> *_event_listeners;
-  std::vector<IStreamer_status_listener *> *_status_listeners;
   Uart *_com1;
   Uart *_com2;
-  pthread_t _thread;
-  pthread_mutex_t _serialize_start_stop;
-  bool _pause_requested;
   void add_uart(Uart *uart);
   void remove_uart(Uart *uart);
   Uart *lookup_uart_by_id(const uint32_t id) const;
   Line *lookup_line_by_id(const uint32_t id) const;
-  inline void stream_started();
-  inline void stream_stopped();
-  inline void notify_event(const Serial_event *event);
-  static void *p_loop(Streamer_thread *streamer_thread);
-  void loop();
 };
 
 #endif /* STREAMER_THREAD_HH */

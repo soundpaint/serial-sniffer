@@ -72,6 +72,10 @@ Uart::Uart(App_control *app_control, const std::string name,
   if (!_line_out) {
     Log::fatal("Uart::Uart(): not enough memory");
   }
+  if (config->get_serial_auto_start()) {
+    start_transmitting();
+    start_receiving();
+  }
 }
 
 Uart::~Uart()

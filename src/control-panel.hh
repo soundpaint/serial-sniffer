@@ -38,7 +38,6 @@
 #include <control-file-logger-panel.hh>
 #include <control-console-logger-panel.hh>
 #include <control-serial-ports-panel.hh>
-#include <control-stream-panel.hh>
 #include <streamer-thread.hh>
 
 class Control_panel : public QWidget
@@ -57,7 +56,6 @@ private:
   Control_file_logger_panel *_control_file_logger_panel;
   Control_console_logger_panel *_control_console_logger_panel;
   Control_serial_ports_panel *_control_serial_ports_panel;
-  Control_stream_panel *_control_stream_panel;
   void create_actions();
 };
 

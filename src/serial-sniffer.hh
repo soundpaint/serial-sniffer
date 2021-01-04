@@ -51,8 +51,6 @@ public:
   void quit();
   void show_license();
   void show_about();
-  void start_stream();
-  void stop_stream();
   void start_file_log();
   void stop_file_log();
   void start_console_log();

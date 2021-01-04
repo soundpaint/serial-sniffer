@@ -104,10 +104,6 @@ Main_window::Main_window(const uint16_t width,
   _streamer_thread->add_event_listener(_log_panel);
   //_streamer_thread->add_status_listener(_log_panel);
   _tab->addTab(_log_panel, tr("Con&sole Log"));
-
-  if (config->get_serial_auto_start()) {
-    _app_control->start_stream();
-  }
 }
 
 Main_window::~Main_window()

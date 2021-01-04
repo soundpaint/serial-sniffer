@@ -30,10 +30,9 @@
  * Author's web site: www.juergen-reuter.de
  */
 
+#include <streamer-thread.hh>
 #include <unistd.h>
 #include <sstream>
-#include <algorithm>
-#include <streamer-thread.hh>
 #include <log.hh>
 
 Streamer_thread::Streamer_thread(App_control *app_control)
@@ -61,12 +60,6 @@ Streamer_thread::Streamer_thread(App_control *app_control)
                "not enough memory");
   }
 
-  _status_listeners = new std::vector<IStreamer_status_listener *>();
-  if (!_status_listeners) {
-    Log::fatal("Streamer_thread::Streamer_thread(): "
-               "not enough memory");
-  }
-
   const IConfig *config = _app_control->get_config();
   _com1 = new Uart(_app_control, std::string("COM1"),
                    config->get_serial_in_dev_path());
@@ -83,16 +76,10 @@ Streamer_thread::Streamer_thread(App_control *app_control)
   add_uart(_com2);
 
   _com1->propagate_input_to(_com2);
-
-  _pause_requested = false;
-  _thread = 0;
-  pthread_mutex_init(&_serialize_start_stop, 0);
 }
 
 Streamer_thread::~Streamer_thread()
 {
-  stop(true);
-
   // locally managed non-Qt objects
   _com1->stop_receiving(true);
   _com1->stop_transmitting(true);
@@ -100,11 +87,8 @@ Streamer_thread::~Streamer_thread()
   _com2->stop_transmitting(true);
   remove_uart(_com1);
   remove_uart(_com2);
-  pthread_mutex_destroy(&_serialize_start_stop);
   delete _event_listeners;
   _event_listeners = 0;
-  delete _status_listeners;
-  _status_listeners = 0;
   delete _uarts;
   _uarts = 0;
   delete _lines;
@@ -116,8 +100,6 @@ Streamer_thread::~Streamer_thread()
 
   // elsewhere managed objects
   _app_control = 0;
-
-  _pause_requested = false;
 }
 
 void
@@ -315,168 +297,6 @@ Streamer_thread::remove_event_listener(ISerial_event_listener *listener)
     }
     uart->remove_event_listener(listener);
   }
-}
-
-void
-Streamer_thread::add_status_listener(IStreamer_status_listener *listener)
-{
-  if (!listener) {
-    Log::fatal("Streamer_thread::add_status_listener(): "
-               "listener is NULL");
-  }
-  if (!_status_listeners) {
-    Log::fatal("Streamer_thread::add_status_listener(): "
-               "_status_listeners is NULL");
-  }
-  _status_listeners->push_back(listener);
-}
-
-void
-Streamer_thread::remove_status_listener(IStreamer_status_listener *listener)
-{
-  if (!listener) {
-    Log::fatal("Streamer_thread::remove_status_listener(): "
-               "listener is NULL");
-  }
-  if (!_status_listeners) {
-    Log::fatal("Streamer_thread::remove_status_listener(): "
-               "_status_listeners is NULL");
-  }
-  auto tail_start =
-    std::remove(_status_listeners->begin(),
-                _status_listeners->end(),
-                listener);
-  _status_listeners->erase(tail_start, _status_listeners->end());
-}
-
-void *
-Streamer_thread::p_loop(Streamer_thread *streamer_thread)
-{
-  if (!streamer_thread) {
-    Log::fatal("Streamer_thread::p_loop(): streamer_thread is NULL");
-  }
-  streamer_thread->loop();
-  return 0;
-}
-
-inline void
-Streamer_thread::notify_event(const Serial_event *event)
-{
-  const int size = _event_listeners->size();
-  for (int index = 0; index < size; index++) {
-    ISerial_event_listener *listener = (*_event_listeners)[index];
-    listener->notify_event(event);
-  }
-}
-
-inline void
-Streamer_thread::stream_started() {
-  const int size = _status_listeners->size();
-  for (int index = 0; index < size; index++) {
-    IStreamer_status_listener *listener = (*_status_listeners)[index];
-    listener->stream_started();
-  }
-}
-
-inline void
-Streamer_thread::stream_stopped() {
-  const int size = _status_listeners->size();
-  for (int index = 0; index < size; index++) {
-    IStreamer_status_listener *listener = (*_status_listeners)[index];
-    listener->stream_stopped();
-  }
-}
-
-void
-Streamer_thread::loop()
-{
-  Log::debug("enter streamer thread loop");
-  while (!_pause_requested) {
-  }
-  _pause_requested = false;
-  Log::debug("leave streamer thread loop");
-  pthread_exit(0);
-}
-
-const bool
-Streamer_thread::is_running() const
-{
-  return _thread != 0;
-}
-
-void
-Streamer_thread::start()
-{
-  pthread_mutex_lock(&_serialize_start_stop);
-  if (!is_running()) {
-    stream_started();
-    pthread_create(&_thread,
-                   NULL,
-                   (void * (*)(void *))p_loop,
-                   this);
-
-    for (auto entry = std::begin(*_uarts);
-         entry != std::end(*_uarts); ++entry) {
-      Uart *uart = entry->second;
-      if (!uart) {
-        std::stringstream msg;
-        msg << "Streamer_thread::start(): uart "
-            << entry->first << " is NULL";
-        Log::error(msg.str());
-        sleep(1);
-        continue;
-      }
-      // TODO
-      /*
-      const Serial_event event = Serial_event::create_stream_started(uart);
-      received_event(&event);
-      */
-    }
-
-  } else {
-    Log::warn("Streamer_thread::start(): already running");
-  }
-  pthread_mutex_unlock(&_serialize_start_stop);
-}
-
-void
-Streamer_thread::stop(const bool ignore_status)
-{
-  pthread_mutex_lock(&_serialize_start_stop);
-  if (is_running()) {
-    _pause_requested = true;
-    void *user_ptr;
-    const int result = pthread_join(_thread, &user_ptr);
-    if (result) {
-      std::stringstream msg;
-      msg << "Streamer_thread::stop(): pausing failed with error " << result;
-      Log::fatal(msg.str());
-    }
-    _thread = 0;
-
-    for (auto entry = std::begin(*_uarts);
-         entry != std::end(*_uarts); ++entry) {
-      Uart *uart = entry->second;
-      if (!uart) {
-        std::stringstream msg;
-        msg << "Streamer_thread::stop(): uart "
-            << entry->first << " is NULL";
-        Log::error(msg.str());
-        sleep(1);
-        continue;
-      }
-      // TODO
-      /*
-      const Serial_event event = Serial_event::create_stream_stopped(uart);
-      received_event(&event);
-      */
-    }
-
-    stream_stopped();
-  } else if (!ignore_status) {
-    Log::warn("Streamer_thread::stop(): already stopped");
-  }
-  pthread_mutex_unlock(&_serialize_start_stop);
 }
 
 /*

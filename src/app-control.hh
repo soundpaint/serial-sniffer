@@ -50,8 +50,6 @@ public:
   virtual void quit() = 0;
   virtual void show_license() = 0;
   virtual void show_about() = 0;
-  virtual void start_stream() = 0;
-  virtual void stop_stream() = 0;
   virtual void start_file_log() = 0;
   virtual void stop_file_log() = 0;
   virtual void start_console_log() = 0;

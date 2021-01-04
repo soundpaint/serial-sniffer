@@ -147,9 +147,7 @@ Serial_sniffer::~Serial_sniffer()
 void
 Serial_sniffer::stop_threads()
 {
-  if (_streamer_thread) {
-    _streamer_thread->stop(true);
-  }
+  // TODO: Stop all Line instances.
 }
 
 const char *
@@ -199,18 +197,6 @@ void
 Serial_sniffer::show_about()
 {
   _about_dialog->show();
-}
-
-void
-Serial_sniffer::start_stream()
-{
-  _streamer_thread->start();
-}
-
-void
-Serial_sniffer::stop_stream()
-{
-  _streamer_thread->stop();
 }
 
 void
