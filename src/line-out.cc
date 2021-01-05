@@ -65,16 +65,8 @@ Line_out::filter_for_line(const ILine_info *line_info)
 #define SIMULATE
 
 void
-Line_out::transfer_prework()
+Line_out::transfer()
 {
-#ifdef SIMULATE
-  /*
-  usleep(2000000);
-  const Serial_event event = Serial_event::create_receive_data(this, 0);
-  _buffer[0] = event.get_data_byte();
-  _bytes_to_write = sizeof(_buffer[0]);
-  */
-#else
   // TODO: Pull model: The transmitter must provide a method that
   // gets called for the next data to be transmitted rather than the
   // transmitter calling a transmit() method).  Hence, call
@@ -86,88 +78,82 @@ Line_out::transfer_prework()
   // The producer should put into the buffer as many data bytes as it
   // has, but at most _buffer_size bytes, and return the number of
   // bytes that it has put into the buffer.
-#endif
-}
-
-void
-Line_out::transfer()
-{
+  atomic_access_buffer([&] () {
+      {
 #ifdef SIMULATE
-  _bytes_written = _bytes_to_write;
-  usleep(2990000);
+        _bytes_written = _bytes_to_write;
+        usleep(2990000);
 #else
-  _bytes_written = 0;
-  while (_bytes_written < _bytes_to_write) {
-    if (_filestream != -1) {
-      const int write_result =
-        write(_filestream, &_buffer[_bytes_written],
-              _bytes_to_write - _bytes_written);
-      if (write_result < 0) {
-        switch (errno) {
-        case EINTR:
-          // TODO: Check if line was requested to stop.
-          {
-            std::stringstream msg;
-            msg << "Line_out::transfer_postwork(): errno=" << errno << "(EINTR)";
-            Log::warn(msg.str());
+        _bytes_written = 0;
+        while (_bytes_written < _bytes_to_write) {
+          if (_filestream != -1) {
+            const int write_result =
+              write(_filestream, &_buffer[_bytes_written],
+                    _bytes_to_write - _bytes_written);
+            if (write_result < 0) {
+              switch (errno) {
+              case EINTR:
+                // TODO: Check if line was requested to stop.
+                {
+                  std::stringstream msg;
+                  msg << "Line_out::transfer_postwork(): errno="
+                      << errno << "(EINTR)";
+                  Log::warn(msg.str());
+                }
+                break;
+              default:
+                {
+                  std::stringstream msg;
+                  msg << "Line_out::transfer_postwork(): errno=" << errno;
+                  Log::warn(msg.str());
+                }
+                break;
+              }
+              // limit bandwidth of retrials just in case of a permanent error
+              usleep(4000000);
+              break; // abort write
+            } else if (write_result == 0) {
+              // limit bandwidth of retrials just in case of a permanent error
+              usleep(4000000);
+              // retry write
+            } else {
+              _bytes_written += write_result;
+            }
+          } else {
+            // line stopped while in write() => drop data
+            _bytes_written = -1;
+            errno = EINTR;
+            break;
           }
-          break;
-        default:
-          {
-            std::stringstream msg;
-            msg << "Line_out::transfer_postwork(): errno=" << errno;
-            Log::warn(msg.str());
-          }
-          break;
         }
-        // limit bandwidth of retrials just in case of a permanent error
-        usleep(4000000);
-        break; // abort write
-      } else if (write_result == 0) {
-        // limit bandwidth of retrials just in case of a permanent error
-        usleep(4000000);
-        // retry write
-      } else {
-        _bytes_written += write_result;
-      }
-    } else {
-      // line stopped while in write() => drop data
-      _bytes_written = -1;
-      errno = EINTR;
-      break;
-    }
-  }
 #endif
-  if (_bytes_written < _bytes_to_write) {
-    std::stringstream msg;
-    msg << "Line_out::transmit_postwork(): errno=" << errno;
-    Log::warn(msg.str());
-  } else {
-    Log::trace("AAAAAAAAA");
-    {
-      std::stringstream msg;
-      msg << "_bytes_to_write=" << _bytes_to_write
-          << ", _bytes_written=" << _bytes_written;
-      Log::trace(msg.str());
-    }
-    for (uint32_t i = 0; i < _bytes_written; i++) {
-      const Serial_event event =
-        Serial_event::create_transmit_data(this, _buffer[i]);
-      //Log::trace(event.to_string());
-      notify_event_listeners(&event);
-    }
-    Log::trace("BBBBBBBBB");
-  }
-  if (!_bytes_to_write) {
-    // reduce costs of spinning when idle
-    std::this_thread::yield();
-  }
-  _bytes_to_write = 0;
-}
-
-void
-Line_out::transfer_postwork()
-{
+        if (_bytes_written < _bytes_to_write) {
+          std::stringstream msg;
+          msg << "Line_out::transmit_postwork(): errno=" << errno;
+          Log::warn(msg.str());
+        } else {
+          Log::trace("AAAAAAAAA");
+          {
+            std::stringstream msg;
+            msg << "_bytes_to_write=" << _bytes_to_write
+                << ", _bytes_written=" << _bytes_written;
+            Log::trace(msg.str());
+          }
+          for (uint32_t i = 0; i < _bytes_written; i++) {
+            const Serial_event event =
+              Serial_event::create_transmit_data(this, _buffer[i]);
+            //Log::trace(event.to_string());
+            notify_event_listeners(&event);
+          }
+          Log::trace("BBBBBBBBB");
+        }
+        if (!_bytes_to_write) {
+          // reduce costs of spinning when idle
+          std::this_thread::yield();
+        }
+        _bytes_to_write = 0;
+      }
+    });
 }
 
 void

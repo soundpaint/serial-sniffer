@@ -44,9 +44,7 @@ public:
   virtual ~Line_in();
 private:
   int _bytes_read;
-  virtual void transfer_prework();
   virtual void transfer();
-  virtual void transfer_postwork();
 };
 
 #endif /* LINE_IN_HH */

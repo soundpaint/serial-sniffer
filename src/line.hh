@@ -76,9 +76,7 @@ protected:
   std::condition_variable *get_interrupt_condition();
   void serialize_with_start_stop(const std::function<void ()> critical_section);
   void atomic_access_buffer(const std::function<void ()> critical_section);
-  virtual void transfer_prework() = 0;
   virtual void transfer() = 0;
-  virtual void transfer_postwork() = 0;
 private:
   static const std::string STR_RX;
   static const std::string STR_TX;

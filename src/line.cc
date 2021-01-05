@@ -401,29 +401,10 @@ Line::transfer_loop_phase_run()
 {
   started();
   while (!_pause_requested && !_quit_requested) {
-    // TODO: Rather than having three methods transfer_prework(),
-    // lock_guarded transfer(), and transfer_postwork(), we could
-    // instead have just only a simple, unguarded transfer(), and let
-    // the subclass call atomic_access_buffer() whereever it requires
-    // to guard critical sections that are about to access and/or
-    // modify the buffer.
-    transfer_prework();
-    {
-      const std::lock_guard<std::mutex> lock(_atomic_access_buffer);
-      transfer();
-    }
+    transfer();
     {
       std::stringstream msg;
       msg << "[P1] " << to_string()
-          << ", _pause_requested=" << _pause_requested
-          << ", _resume_requested=" << _resume_requested
-          << ", _quit_requested=" << _quit_requested;
-      Log::trace(msg.str());
-    }
-    if (!_quit_requested) transfer_postwork();
-    {
-      std::stringstream msg;
-      msg << "[P2] " << to_string()
           << ", _pause_requested=" << _pause_requested
           << ", _resume_requested=" << _resume_requested
           << ", _quit_requested=" << _quit_requested;

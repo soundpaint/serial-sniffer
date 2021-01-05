@@ -49,9 +49,8 @@ Line_in::~Line_in()
 #define SIMULATE
 
 void
-Line_in::transfer_prework()
+Line_in::transfer()
 {
-#ifdef SIMULATE
   {
     std::stringstream message;
     message << "Line_in::transfer_prework(): "
@@ -59,40 +58,33 @@ Line_in::transfer_prework()
             << ": read next event";
     Log::debug(message.str());
   }
-#else
-#endif
-}
-
-void
-Line_in::transfer()
-{
+  atomic_access_buffer([&] () {
+      {
 #ifdef SIMULATE
-  std::unique_lock<std::mutex> lock = acquire_interrupt_lock();
-  get_interrupt_condition()->wait_for(lock, std::chrono::milliseconds(9990));
-  _buffer[0] = rand() & 0xff;
-  {
-    std::stringstream message;
-    message << "Line_in::transfer(): "
-            << to_string()
-            << ": generated random value: "
-            << (uint32_t)_buffer[0];
-    Log::debug(message.str());
-  }
-  _bytes_read = 1;
+        std::unique_lock<std::mutex> lock = acquire_interrupt_lock();
+        get_interrupt_condition()->
+          wait_for(lock, std::chrono::milliseconds(9990));
+        _buffer[0] = rand() & 0xff;
+        {
+          std::stringstream message;
+          message << "Line_in::transfer(): "
+                  << to_string()
+                  << ": generated random value: "
+                  << (uint32_t)_buffer[0];
+          Log::debug(message.str());
+        }
+        _bytes_read = 1;
 #else
-  if (_filestream != -1) {
-    _bytes_read =
-      read(_filestream, (void*)_buffer, _buffer_size);
-    if (_bytes_read < 0) {
+        if (_filestream != -1) {
+          _bytes_read =
+            read(_filestream, (void*)_buffer, _buffer_size);
+          if (_bytes_read < 0) {
       return; // line stopped while in read() => drop data
-    }
-  }
+          }
+        }
 #endif
-}
-
-void
-Line_in::transfer_postwork()
-{
+      }
+    });
   if (_filestream != -1) {
     if (_bytes_read < 0) {
       switch (errno) {

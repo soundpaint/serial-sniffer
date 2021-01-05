@@ -49,9 +49,7 @@ private:
   Serial_event_default_filter *_event_filter;
   uint32_t _bytes_to_write;
   uint32_t _bytes_written;
-  virtual void transfer_prework();
   virtual void transfer();
-  virtual void transfer_postwork();
 };
 
 std::ostream &operator <<(std::ostream &os, const Line_out &line_out);
