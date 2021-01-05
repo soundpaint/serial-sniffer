@@ -64,7 +64,8 @@ Control_serial_ports_panel::Control_serial_ports_panel(App_control *app_control,
       ((Uart *)(*uart_info))->get_all_lines();
     for (auto line_info = std::begin(lines);
          line_info != std::end(lines); ++line_info) {
-      ((Line *)(*line_info))->add_status_listener(this);
+      Line *line = (Line *)(*line_info);
+      line->add_status_listener(this);
       QWidget *buttons_panel = new QWidget();
       if (!buttons_panel) {
         Log::fatal("Control_serial_ports_panel::Control_serial_ports_panel(): "
@@ -81,7 +82,7 @@ Control_serial_ports_panel::Control_serial_ports_panel(App_control *app_control,
       _buttons_layouts->push_back(buttons_layout);
       buttons_panel->setLayout(buttons_layout);
 
-      std::string line_name = (*line_info)->get_full_name();
+      std::string line_name = line->get_full_name();
       QLabel *label_line_name = new QLabel(tr(line_name.c_str()));
       if (!label_line_name) {
         Log::fatal("Control_serial_ports_panel::Control_serial_ports_panel(): "

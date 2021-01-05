@@ -39,16 +39,18 @@
 #include <mutex>
 #include <functional>
 #include <condition_variable>
-#include <iuart-info.hh>
 #include <iline-status-listener.hh>
 #include <iserial-event-listener.hh>
 
 class Line : public ILine_info
 {
 public:
-  Line(IUart_info *uart_info,
-       const line_type_t line_type,
+  enum line_type_t {
+    rx, tx
+  };
+  Line(const line_type_t line_type,
        const std::string name,
+       const std::string group_name,
        const int filestream,
        const uint32_t buffer_size);
   virtual ~Line();
@@ -78,15 +80,15 @@ protected:
   virtual void transfer() = 0;
   virtual void transfer_postwork() = 0;
 private:
+  static const std::string STR_RX;
+  static const std::string STR_TX;
   uint32_t _id;
-  IUart_info *_uart_info;
   line_type_t _line_type;
   std::string _name;
+  std::string _group_name;
   std::string _full_name;
   std::vector<ILine_status_listener *> *_status_listeners;
   std::vector<ISerial_event_listener *> *_event_listeners;
-  static const std::string STR_RX;
-  static const std::string STR_TX;
   std::thread *_transfer_thread;
   std::mutex _atomic_handle_interrupt;
   std::mutex _atomic_access_buffer;

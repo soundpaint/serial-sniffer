@@ -49,18 +49,15 @@ Line::create_id()
   return _next_id++;
 }
 
-Line::Line(IUart_info *uart_info,
-           const line_type_t line_type,
+Line::Line(const line_type_t line_type,
            const std::string name,
+           const std::string group_name,
            const int filestream,
            const uint32_t buffer_size)
 {
-  if (!uart_info) {
-    Log::fatal("Line::Line(): uart_info is NULL");
-  }
-  _uart_info = uart_info;
   _line_type = line_type;
   _name = std::string(name);
+  _group_name = group_name;
   _filestream = filestream;
   _buffer_size = buffer_size;
   _id = create_id();
@@ -107,9 +104,10 @@ Line::~Line()
   _status_listeners = 0;
   delete[] _buffer;
   _buffer = 0;
+  _name.clear();
+  _group_name.clear();
 
   // elsewhere managed objects
-  _uart_info = 0;
   _filestream = 0;
 
   _id = 0;
@@ -181,7 +179,7 @@ Line::get_full_name() const
 {
   std::stringstream str;
   str
-    << _uart_info->get_name()
+    << _group_name
     << " "
     << line_type_as_string();
   return str.str();

@@ -38,15 +38,8 @@
 class ILine_info
 {
 public:
-  enum line_type_t {
-    rx, tx
-  };
-  static const std::string STR_RX;
-  static const std::string STR_TX;
   virtual const uint32_t get_id() const = 0;
   virtual const std::string get_name() const = 0;
-  virtual const std::string get_full_name() const = 0;
-  virtual const line_type_t get_line_type() const = 0;
   virtual const std::string to_string() const = 0;
 };
 

@@ -39,7 +39,7 @@
 class Line_out : public Line, public ISerial_event_listener
 {
 public:
-  Line_out(IUart_info *uart_info,
+  Line_out(const std::string group_name,
            const int output_filestream,
            const uint32_t buffer_size);
   virtual ~Line_out();

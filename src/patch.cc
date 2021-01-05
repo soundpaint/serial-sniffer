@@ -66,7 +66,7 @@ Patch::Patch(App_control *app_control)
   add_uart(_com1);
 
   _com2 = new Uart(_app_control, std::string("COM2"),
-                   config->get_serial_in_dev_path());
+                   config->get_serial_out_dev_path());
   if (!_com2) {
     Log::fatal("Serial_sniffer::Serial_sniffer(): not enough memory");
   }

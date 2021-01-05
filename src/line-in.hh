@@ -38,7 +38,7 @@
 class Line_in : public Line
 {
 public:
-  Line_in(IUart_info *uart_info,
+  Line_in(const std::string group_name,
           const int filestream,
           const uint32_t buffer_size);
   virtual ~Line_in();

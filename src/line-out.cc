@@ -35,10 +35,10 @@
 #include <unistd.h>
 #include <log.hh>
 
-Line_out::Line_out(IUart_info *uart_info,
+Line_out::Line_out(const std::string group_name,
                    const int filestream,
                    const uint32_t buffer_size)
-  : Line(uart_info, tx, std::string("TX"), filestream, buffer_size)
+  : Line(tx, std::string("TX"), group_name, filestream, buffer_size)
 {
   _event_filter =
     new Serial_event_default_filter(NULL, Serial_event::rx_data_byte);

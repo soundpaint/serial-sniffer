@@ -35,10 +35,10 @@
 #include <unistd.h>
 #include <log.hh>
 
-Line_in::Line_in(IUart_info *uart_info,
+Line_in::Line_in(std::string group_name,
                  const int filestream,
                  const uint32_t buffer_size)
-  : Line(uart_info, rx, std::string("RX"), filestream, buffer_size)
+  : Line(rx, std::string("RX"), group_name, filestream, buffer_size)
 {
 }
 

@@ -64,11 +64,11 @@ Uart::Uart(App_control *app_control, const std::string name,
 
   const IConfig *config = _app_control->get_config();
   const uint32_t buffer_size = config->get_serial_buffer_size();
-  _line_in = new Line_in(this, _filestream, buffer_size);
+  _line_in = new Line_in(_name, _filestream, buffer_size);
   if (!_line_in) {
     Log::fatal("Uart::Uart(): not enough memory");
   }
-  _line_out = new Line_out(this, _filestream, buffer_size);
+  _line_out = new Line_out(_name, _filestream, buffer_size);
   if (!_line_out) {
     Log::fatal("Uart::Uart(): not enough memory");
   }

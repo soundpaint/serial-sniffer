@@ -34,7 +34,7 @@
 #include <iomanip>
 
 Log::Level
-Log::_level = Log::Level::trace;
+Log::_level = Log::Level::debug;
 
 std::lock_guard<std::mutex> Log::get_lock()
 {
